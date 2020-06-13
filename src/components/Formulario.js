@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from 'react';
+import uuid from 'uuid/dist/v4'
 
-const Formulario = () => {
+const Formulario = ({crearCita}) => {
 
     // Crear el state de citas
     const [cita, actualizarCita] = useState ({
@@ -10,6 +11,9 @@ const Formulario = () => {
         hora: '',
         sintomas: ''
     })
+
+    // Funcion para avisar errores al usuario
+    const [ error, actualizarError ] = useState(false)
 
     //  Funcion que manejas los cambios en el input
     const handleChange = e => {
@@ -22,11 +26,47 @@ const Formulario = () => {
     // Extraer valores del state
     const { mascota, propietario, fecha, hora, sintomas } = cita
 
+    // Cuando el usuario guarda el formulario
+    const submitCita = e => {
+        e.preventDefault()
+
+        // Validacion de inputs
+        if(mascota.trim() === '' || propietario.trim() === '' || fecha.trim() === '' || 
+        hora.trim() === '' || sintomas.trim() === ''){
+            actualizarError(true)
+            return
+        }
+
+        // Eliminar mensaje de error si todo esta bien
+        actualizarError(false)
+
+        // Crear ID unico
+        cita.id = uuid()
+        
+        // Creando cita
+        crearCita(cita)
+
+        // Reiniciar el form
+        actualizarCita({
+            mascota: '',
+            propietario: '',
+            fecha: '',
+            hora: '',
+            sintomas: ''
+        })
+
+
+    }
+
     return ( 
         <Fragment>
             <h2>Crear cita</h2>
 
-            <form>
+            { error ? <p className="alerta-error">Todos los campos son obligatorios*</p> : null}
+
+            <form
+                onSubmit = { submitCita }
+            >
                 <label>Nombre de la mascota</label>
                 <input 
                     type = "text"
